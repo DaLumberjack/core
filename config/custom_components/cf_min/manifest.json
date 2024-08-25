@@ -1,0 +1,10 @@
+{
+  "domain": "cf_min",
+  "name": "CF_MIN",
+  "version": "0.1.0",
+  "after_dependencies": ["recorder"],
+  "dependencies": [],
+  "codeowners": ["someone"],
+  "quality_scale": "internal",
+  "config_flow": true
+}
