@@ -18,14 +18,20 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the demo number platform."""
+    communifarm_name = config_entry.data.get("name", "Communifarm")
+    communifarm_id = (
+        config_entry.data.get("name", "communifarm").replace(" ", "_").lower()
+    )
     entities = []
     noots = NUTRIENT_MIXES.items()
     for brand, products in noots:
         for product_type, product_details in products.items():
             for nutrient, nutrient_details in product_details.items():
                 for mix_type, details in nutrient_details.items():
-                    name = f"cf {brand}_{product_type}_{nutrient}_{mix_type}"
-                    unique_id = f"cf_{brand}_{product_type}_{nutrient}_{mix_type}"
+                    name = f"{communifarm_name} {brand}_{product_type}_{nutrient}_{mix_type}"
+                    unique_id = (
+                        f"{communifarm_id}_{brand}_{product_type}_{nutrient}_{mix_type}"
+                    )
                     entity = DemoNumber(
                         unique_id=unique_id,
                         device_name=name,
