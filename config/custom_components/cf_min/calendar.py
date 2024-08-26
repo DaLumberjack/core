@@ -1,5 +1,7 @@
 """Calednar for tracking things to do in a communifarm."""
 
+from typing import Any
+
 from homeassistant.components.calendar import CalendarEntity
 
 
@@ -53,3 +55,17 @@ class CommunifarmCalendar(CalendarEntity):
             for event in self._events
             if event["start"] >= start_date and event["end"] <= end_date
         ]
+
+    async def async_update_event(
+        self,
+        uid: str,
+        event: dict[str, Any],
+        description: str,
+        recurrence_id: str | None = None,
+        recurrence_range: str | None = None,
+    ) -> None:
+        """Update the event description in the calendar."""
+        for evnt in self._events:
+            if evnt["id"] == uid:
+                evnt["description"] = description
+                break
