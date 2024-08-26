@@ -18,6 +18,7 @@ import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN
 
+CONF_NAME = "name"
 CONF_STRING = "string"
 CONF_BOOLEAN = "bool"
 CONF_INT = "int"
@@ -49,6 +50,7 @@ class DemoConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Check if a similar entry already exists based on some unique identifier
             # If you don't want to check for duplicates, simply remove this condition
+            _LOGGER.debug("Creating config entry with data: %s", user_input)
             existing_entries = self._async_current_entries()
             if any(
                 entry.data.get(CONF_STRING) == user_input[CONF_STRING]
@@ -58,13 +60,17 @@ class DemoConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 # Log the creation process
                 _LOGGER.debug("Creating config entry with data: %s", user_input)
-                return self.async_create_entry(title="Demo", data=user_input)
+                entry_name = user_input.get(CONF_NAME, "Communifarm")
+                return self.async_create_entry(title=entry_name, data=user_input)
 
         # Show the form to the user if no input is provided or if there are errors
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
+                    vol.Required(
+                        CONF_NAME, default="My Communifarm"
+                    ): str,  # Add the name field
                     vol.Required(CONF_STRING, default="Default String"): str,
                     vol.Optional(CONF_BOOLEAN, default=False): bool,
                     vol.Optional(CONF_INT, default=10): int,
@@ -78,7 +84,9 @@ class DemoConfigFlow(ConfigFlow, domain=DOMAIN):
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
 
-        return self.async_create_entry(title="Demo", data=import_info)
+        # Use the name provided in the import as the title
+        entry_name = import_info.get(CONF_NAME, "Communifarm")
+        return self.async_create_entry(title=entry_name, data=import_info)
 
 
 class OptionsFlowHandler(OptionsFlow):
