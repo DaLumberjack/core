@@ -132,6 +132,7 @@ class DemoNumber(NumberEntity):
         native_max_value: float | None = None,
         native_step: float | None = None,
         unit_of_measurement: str | None = None,
+        device_info: DeviceInfo | None = None,
     ) -> None:
         """Initialize the Demo Number entity."""
         self._attr_assumed_state = assumed_state
@@ -148,14 +149,16 @@ class DemoNumber(NumberEntity):
             self._attr_native_max_value = native_max_value
         if native_step is not None:
             self._attr_native_step = native_step
-
-        self._attr_device_info = DeviceInfo(
-            identifiers={
-                # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, unique_id)
-            },
-            name=device_name,
-        )
+        if device_info is not None:
+            self._attr_device_info = device_info
+        else:
+            self._attr_device_info = DeviceInfo(
+                identifiers={
+                    # Serial numbers are unique identifiers within a specific domain
+                    (DOMAIN, unique_id)
+                },
+                name=device_name,
+            )
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
