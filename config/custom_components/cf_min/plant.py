@@ -2,15 +2,18 @@
 
 from homeassistant.helpers.entity import Entity
 
+from .seed import CommunifarmSeed
+
 
 class CommunifarmPlant(Entity):
     """Plant for storing data about a plant."""
 
-    def __init__(self, name, unique_id) -> None:
+    def __init__(self, name, unique_id, seeds: list[CommunifarmSeed]) -> None:
         """Initialize the reservoir entity."""
         self._name = name
-        self._unique_id = unique_id
+        self._attr_unique_id = unique_id
         self._state = "operational"
+        self._seeds = seeds
 
     @property
     def name(self) -> any:
@@ -20,7 +23,7 @@ class CommunifarmPlant(Entity):
     @property
     def unique_id(self):
         """Return a unique ID for this entity."""
-        return self._unique_id
+        return self._attr_unique_id
 
     @property
     def state(self):
