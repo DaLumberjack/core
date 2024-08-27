@@ -2,7 +2,7 @@
 
 from homeassistant.helpers.entity import Entity
 
-from .devices import DoserDevice
+from ..devices import DoserDevice
 from .reservoir import CommunifarmReservoir
 
 
