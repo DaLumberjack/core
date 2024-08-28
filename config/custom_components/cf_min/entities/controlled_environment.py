@@ -1,11 +1,17 @@
 """A Controlled Environment for the communifarm."""
 
 from homeassistant.helpers.entity import Entity
+from homeassistant.components.fan import FanEntity
+from homeassistant.components.humidifier import HumidifierEntity
+from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.air_quality import AirQualityEntity
+from homeassistant.components.sensor import SensorEntity
 
 from .cf_light import CommunifarmLight
 from .plant import CommunifarmPlant
 from .seed import CommunifarmSeed
 from .tray import CommunifarmTray
+from .tent import CommunifarmTent
 
 
 class ControlledEnvironment(Entity):
@@ -16,14 +22,16 @@ class ControlledEnvironment(Entity):
         name,
         device_name,
         unique_id,
-        seeds: list[CommunifarmSeed],
-        plants: list[CommunifarmPlant],
-        trays: list[CommunifarmTray],
-        lights: list[CommunifarmLight],
-        rows,
-        columns,
-        media_type,
-        tent_row,
+        seeds: list[CommunifarmSeed] | None,
+        plants: list[CommunifarmPlant] |None,
+        trays: list[CommunifarmTray] | None,
+        lights: list[CommunifarmLight] | None,
+        tents: list[CommunifarmTent] | None,
+        fans: list[FanEntity] | None,
+        humidifiers: list[HumidifierEntity] | None,
+        climate: list[ClimateEntity] | None,
+        air_qualities: list[AirQualityEntity] | None,
+        sensors: list[SensorEntity] | None,
     ) -> None:
         """Initialize the tray entity."""
         self._name = name
@@ -32,10 +40,14 @@ class ControlledEnvironment(Entity):
         self._plants = plants
         self._state = "operational"
         self._seeds = seeds
-        self._rows = rows
-        self._columns = columns
-        self._media_type = media_type
-        self._tent_row = tent_row
+        self._trays = trays
+        self._lights = lights
+        self._tents = tents
+        self._fans = fans
+        self._humidifiers = humidifiers
+        self._climate = climate
+        self._air_qualities = air_qualities
+        self._sensors = sensors
 
     @property
     def name(self) -> str:
