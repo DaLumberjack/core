@@ -1,18 +1,20 @@
 """Light for communifarm component."""
 
 from homeassistant.components.light import (
-    ATTR_BRIGHTNESS, ATTR_RGB_COLOR, LightEntity, ColorMode
+    ATTR_BRIGHTNESS,
+    ATTR_RGB_COLOR,
+    ColorMode,
+    LightEntity,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import Entity
 
 SUPPORT_UV = 1  # Custom flag for UV support
 SUPPORT_IR = 2  # Custom flag for IR support
 
+
 class CommunifarmLight(LightEntity):
     """Representation of a Communifarm light with additional UV and IR control."""
 
-    def __init__(self, name, unique_id, pwm_control):
+    def __init__(self, name, unique_id, pwm_control) -> None:
         """Initialize the light."""
         self._name = name
         self._unique_id = unique_id
