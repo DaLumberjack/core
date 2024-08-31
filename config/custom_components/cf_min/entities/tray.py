@@ -33,6 +33,7 @@ class CommunifarmTray(Entity):
         self._columns = columns
         self._media_type = media_type
         self._tent_row = tent_row
+        self.cells = [[False for _ in range(columns)] for _ in range(rows)]
 
     @property
     def name(self) -> str:

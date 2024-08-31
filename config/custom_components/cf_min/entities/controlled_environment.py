@@ -1,17 +1,17 @@
 """A Controlled Environment for the communifarm."""
 
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.air_quality import AirQualityEntity
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.fan import FanEntity
 from homeassistant.components.humidifier import HumidifierEntity
-from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.air_quality import AirQualityEntity
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.entity import Entity
 
 from .cf_light import CommunifarmLight
 from .plant import CommunifarmPlant
 from .seed import CommunifarmSeed
-from .tray import CommunifarmTray
 from .tent import CommunifarmTent
+from .tray import CommunifarmTray
 
 
 class ControlledEnvironment(Entity):
@@ -23,7 +23,7 @@ class ControlledEnvironment(Entity):
         device_name,
         unique_id,
         seeds: list[CommunifarmSeed] | None,
-        plants: list[CommunifarmPlant] |None,
+        plants: list[CommunifarmPlant] | None,
         trays: list[CommunifarmTray] | None,
         lights: list[CommunifarmLight] | None,
         tents: list[CommunifarmTent] | None,
