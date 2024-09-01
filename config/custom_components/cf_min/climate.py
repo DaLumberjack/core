@@ -1,12 +1,13 @@
 """Climate for a communifarm."""
 
 from homeassistant.components.climate import ClimateEntity
+from homeassistant.core import HomeAssistant
 
 
 class CommunifarmClimate(ClimateEntity):
     """Representation of a Communifarm climate system."""
 
-    def __init__(self, name, unique_id, hass, config) -> None:
+    def __init__(self, name, unique_id, hass: HomeAssistant | None, config) -> None:
         """Initialize the Communifarm climate device."""
         self._name = name
         self._unique_id = unique_id
