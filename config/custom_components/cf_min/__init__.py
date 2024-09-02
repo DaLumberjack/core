@@ -10,7 +10,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_START, Platform, UnitOfSoundPressure
 import homeassistant.core as ha
-from homeassistant.core import Event, HomeAssistant
+from homeassistant.core import Event, HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 
 # from homeassistant.helpers.discovery import async_load_platform
@@ -18,6 +18,7 @@ from homeassistant.helpers import config_validation as cv
 # from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.typing import ConfigType
 
+from .helpers.actions import handle_plant_plant
 DOMAIN = "cf_min"
 
 COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM = [
@@ -68,7 +69,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             },
         )
     )
-
+    hass.services.async_register(DOMAIN, "plant_plant", handle_plant_plant)
     # Set up input number
     tasks.append(
         setup.async_setup_component(
