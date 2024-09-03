@@ -12,6 +12,8 @@ class CommunifarmTrayCell(Entity):
         self._row = row
         self._col = col
         self._entity_id = entity_id
+        self._last_watered = None
+        self._last_watered_with = None
         self._state = False
 
     @property
