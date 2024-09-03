@@ -1,13 +1,13 @@
-"""Module for handling Tower entities in Communifarm."""
+"""Module for handling Tower location entities in Communifarm."""
 
 from homeassistant.helpers.entity import Entity
 
 
-class CommunifarmTower(Entity):
-    """Tower for storing data about a seed."""
+class CommunifarmTowerLocation(Entity):
+    """Tower location for storing data about a growth."""
 
     def __init__(self, name, unique_id) -> None:
-        """Initialize the seed entity."""
+        """Initialize the tower location entity."""
         self._name = name
         self._unique_id = unique_id
         self._state = "operational"
