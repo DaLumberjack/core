@@ -18,7 +18,7 @@ class CommunifarmDatabase:
 
     def setup_tables(self):
         """Create tables for storing Communifarm data if they don't exist."""
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS grow_cycle (
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_grow_cycle (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 name TEXT NOT NULL,
                                 plant ENUM(Cilantro, Arugula, Lettuce, Spinach, Basil),
@@ -30,7 +30,7 @@ class CommunifarmDatabase:
                                 end_date DATETIME,
                                 status TEXT
                               )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS observation (
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_observation (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 grow_cycle_id INTEGER,
                                 observation_stage ENUM(Planting, Imbition, Germination, Emergence, Cotyledon, True Leaf, Transplant, Vegetative, Flower, Fruit, Ripen, Harvest, Storage, Sale, Transport, Misc),
@@ -40,53 +40,50 @@ class CommunifarmDatabase:
                                 tent_odor_index INTEGER,
                                 exterior_odor_index INTEGER,
                                 reservior_odor_index INTEGER,
-                                root_tip_new_quality_index INTEGER,
-                                root_body_new_qualtiy_index INTEGER,
-                                root_vein_new_qualtiy_index INTEGER,
-                                root_necrosis_new_qualtiy_index INTEGER,
-                                root_chlorosis_new_qualtiy_index INTEGER,
-                                stem_tip_new_quality_index INTEGER,
-                                stem_body_new_qualtiy_index INTEGER,
-                                stem_vein_new_qualtiy_index INTEGER,
-                                stem_necrosis_new_qualtiy_index INTEGER,
-                                stem_chlorosis_new_qualtiy_index INTEGER,
-                                leaf_tip_new_quality_index INTEGER,
-                                leaf_body_new_qualtiy_index INTEGER,
-                                leaf_vein_new_qualtiy_index INTEGER,
-                                leaf_necrosis_new_qualtiy_index INTEGER,
-                                leaf_chlorosis_new_qualtiy_index INTEGER,
-                                root_tip_old_quality_index INTEGER,
-                                root_body_old_qualtiy_index INTEGER,
-                                root_vein_old_qualtiy_index INTEGER,
-                                root_necrosis_old_qualtiy_index INTEGER,
-                                root_chlorosis_old_qualtiy_index INTEGER,
-                                stem_tip_old_quality_index INTEGER,
-                                stem_body_old_qualtiy_index INTEGER,
-                                stem_vein_old_qualtiy_index INTEGER,
-                                stem_necrosis_old_qualtiy_index INTEGER,
-                                stem_chlorosis_old_qualtiy_index INTEGER,
-                                leaf_tip_old_quality_index INTEGER,
-                                leaf_body_old_qualtiy_index INTEGER,
-                                leaf_vein_old_qualtiy_index INTEGER,
-                                leaf_necrosis_old_qualtiy_index INTEGER,
-                                leaf_chlorosis_old_qualtiy_index INTEGER,
                                 room_odor_text TEXT,
                                 tent_odor_text TEXT,
                                 exterior_odor_text TEXT,
                                 reservior_odor_text TEXT,
                                 details TEXT,
-                                FOREIGN KEY (grow_cycle_id) REFERENCES grow_cycle(id)
+                                FOREIGN KEY (grow_cycle_id) REFERENCES cf_grow_cycle(id)
                               )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS harvest (
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_quality_index (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                observation_id INTEGER,
+                                area ENUM(root, stem, leaf, medium, env)
+                                location ENUM(base, tip, body, vein)
+                                age ENUM(new, old)
+                                quality_type TEXT,
+                                necrosis_index INTEGER,
+                                necrosis_text TEXT,
+                                chlorosis_index INTEGER,
+                                chlorosis_text TEXT,
+                                color_index INTEGER,
+                                color_text TEXT,
+                                shape_index INTEGER,
+                                shape_text TEXT,
+                                FOREIGN KEY (observation_id) REFERENCES cf_observation(id)
+                                )""")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_odor_index (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                observation_id INTEGER,
+                                location ENUM(interior, exterior)
+                                area ENUM(reservior, environment, germination, tower, root, leaves, tent)
+                                reservior_type ENUM(main, ro, mixing)
+                                odor_index INTEGER,
+                                odor_text TEXT,
+                                FOREIGN KEY (observation_id) REFERENCES cf_observation(id)
+                                )""")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_harvest (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 grow_cycle_id INTEGER,
                                 harvest_date DATETIME,
                                 weight FLOAT(2),
                                 unit TEXT,
                                 details TEXT,
-                                FOREIGN KEY (grow_cycle_id) REFERENCES grow_cycles(id)
+                                FOREIGN KEY (grow_cycle_id) REFERENCES cf_grow_cycles(id)
                               )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS sale (
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_sale (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 grow_cycle_id INTEGER,
                                 harvest_id INTEGER,
@@ -98,8 +95,8 @@ class CommunifarmDatabase:
                                 discount_percent FLOAT,
                                 sale_date DATETIME,
                                 details TEXT,
-                                FOREIGN KEY (grow_cycle_id) REFERENCES grow_cycle(id)
-                                FOREIGN KEY (harvest_id) REFERENCES harvest(id)
+                                FOREIGN KEY (grow_cycle_id) REFERENCES cf_grow_cycle(id)
+                                FOREIGN KEY (harvest_id) REFERENCES cf_harvest(id)
                               )""")
         self.conn.commit()
 
