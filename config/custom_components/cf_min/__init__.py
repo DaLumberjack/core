@@ -19,6 +19,8 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .helpers.actions import handle_plant_plant
+from .helpers.db_helpers import updateTableRow, insertTableRow
+
 DOMAIN = "cf_min"
 
 COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM = [
@@ -117,7 +119,26 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     await hass.config_entries.async_forward_entry_setups(
         config_entry, COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM
     )
+    communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")
+    
+    # Database connection
+    db_connection = hass.data[DOMAIN]["db_connection"]
+    cursor = db_connection.cursor()
 
+    sql_rsp = insertTableRow(
+        cursor, 
+        db_connection,
+        table_name="cf_main",
+        columns={
+            "name":communifarm_name,
+        }
+    )
+    if sql_rsp:
+        # Set the primary key (SQL PK) as an attribute
+        hass.data[DOMAIN]["sql_pk"] = sql_rsp
+        _LOGGER.info(f"Communifarm '{communifarm_name}' added with SQL PK: {sql_rsp}")
+    else:
+        _LOGGER.error(f"Failed to insert Communifarm '{communifarm_name}' into database.")
     # Store the entry in hass.data for later use if needed
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = config_entry
 

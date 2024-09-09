@@ -3,7 +3,7 @@
 from homeassistant.helpers.entity import Entity
 
 from .seed import CommunifarmSeed
-
+from ..helpers.db_helpers import updateTableRow, insertTableRow
 
 class CommunifarmTent(Entity):
     """Tray for germinating seeds."""
@@ -20,6 +20,7 @@ class CommunifarmTent(Entity):
         columns,
         media_type,
         tent_row,
+        sql_pk
     ) -> None:
         """Initialize the tray entity."""
         self._name = name
@@ -33,7 +34,13 @@ class CommunifarmTent(Entity):
         self._columns = columns
         self._media_type = media_type
         self._tent_row = tent_row
-
+        self._sql_pk = sql_pk
+        insertTableRow(
+            table_name="tent",
+            columns={
+                "number_of_rows":"4",
+            }
+        )
     @property
     def name(self) -> str:
         """Name of the tray."""
@@ -48,6 +55,11 @@ class CommunifarmTent(Entity):
     def state(self):
         """Return the current state."""
         return self._state
+    
+    @property
+    def sql_pk(self):
+        """Return the current state."""
+        return self._sql_pk
 
     @property
     def extra_state_attributes(self):
