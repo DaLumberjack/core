@@ -1,16 +1,24 @@
 """Module for handling Tower location entities in Communifarm."""
 
 from homeassistant.helpers.entity import Entity
-
+from ..helpers.db_helpers import updateTableRow, insertTableRow
+from .tower import CommunifarmTower
 
 class CommunifarmTowerLocation(Entity):
     """Tower location for storing data about a growth."""
 
-    def __init__(self, name, unique_id) -> None:
+    def __init__(self, name, unique_id, tower: CommunifarmTower) -> None:
         """Initialize the tower location entity."""
         self._name = name
         self._unique_id = unique_id
         self._state = "operational"
+        sql_rsp = insertTableRow(
+            table_name="tower_location",
+            columns={
+                "tower":tower.sql_pk,
+            }
+        )
+        self._sql_pk = sql_rsp
 
     @property
     def name(self) -> any:
@@ -26,6 +34,11 @@ class CommunifarmTowerLocation(Entity):
     def state(self):
         """Return the current state."""
         return self._state
+
+    @property
+    def _sql_pk(self):
+        """Return the SQL pk."""
+        return self._sql_pk
 
     @property
     def extra_state_attributes(self):
