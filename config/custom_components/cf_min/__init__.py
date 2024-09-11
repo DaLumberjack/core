@@ -122,12 +122,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")
     
     # Database connection
-    db_connection = hass.data[DOMAIN]["db_connection"]
-    cursor = db_connection.cursor()
+    
+    
 
     sql_rsp = insertTableRow(
-        cursor, 
-        db_connection,
+        hass = hass,
         table_name="cf_main",
         columns={
             "name":communifarm_name,

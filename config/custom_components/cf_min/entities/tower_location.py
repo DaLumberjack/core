@@ -3,19 +3,22 @@
 from homeassistant.helpers.entity import Entity
 from ..helpers.db_helpers import updateTableRow, insertTableRow
 from .tower import CommunifarmTower
+from homeassistant.core import HomeAssistant
 
 class CommunifarmTowerLocation(Entity):
     """Tower location for storing data about a growth."""
 
-    def __init__(self, name, unique_id, tower: CommunifarmTower) -> None:
+    def __init__(self, name, unique_id, tower: CommunifarmTower, hass: HomeAssistant) -> None:
         """Initialize the tower location entity."""
         self._name = name
         self._unique_id = unique_id
         self._state = "operational"
         sql_rsp = insertTableRow(
+            hass = hass,
             table_name="tower_location",
             columns={
-                "tower":tower.sql_pk,
+                "name": self._name,
+                "tower": tower._sql_pk,
             }
         )
         self._sql_pk = sql_rsp

@@ -16,14 +16,14 @@ class CommunifarmTower(Entity):
         self._name = name
         self._unique_id = unique_id
         self._state = "operational"
-
+        self._sql_cf_pk = cf_pk
         # Database connection
-        db_connection = hass.data[DOMAIN]["db_connection"]
-        cursor = db_connection.cursor()
+        
+        
 
+        # insert the created tower into a sql db for complex entity relationship
         sql_rsp = insertTableRow(
-            cursor, 
-            db_connection,
+            hass = hass,
             table_name="tower",
             columns={
                 "name":self._name,

@@ -4,6 +4,7 @@ from homeassistant.helpers.entity import Entity
 
 from .seed import CommunifarmSeed
 from ..helpers.db_helpers import updateTableRow, insertTableRow
+from homeassistant.core import HomeAssistant
 
 class CommunifarmTent(Entity):
     """Tray for germinating seeds."""
@@ -20,7 +21,8 @@ class CommunifarmTent(Entity):
         columns,
         media_type,
         tent_row,
-        sql_pk
+        sql_pk,
+        hass: HomeAssistant
     ) -> None:
         """Initialize the tray entity."""
         self._name = name
@@ -36,6 +38,7 @@ class CommunifarmTent(Entity):
         self._tent_row = tent_row
         self._sql_pk = sql_pk
         insertTableRow(
+            hass = hass,
             table_name="tent",
             columns={
                 "number_of_rows":"4",
