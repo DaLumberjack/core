@@ -18,15 +18,12 @@ class CommunifarmTower(Entity):
         self._state = "operational"
         self._sql_cf_pk = cf_pk
         # Database connection
-        
-        
-
         # insert the created tower into a sql db for complex entity relationship
         sql_rsp = insertTableRow(
             hass = hass,
-            table_name="tower",
-            columns={
-                "name":self._name,
+            table_name = "tower",
+            columns = {
+                "name": self._name,
                 "cf": cf_pk
             }
         )
