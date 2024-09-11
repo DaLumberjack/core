@@ -1,12 +1,16 @@
+from homeassistant.core import HomeAssistant
+DOMAIN = "cf_min"
+
 """Module for helping Database Communifarm."""
 def updateTableRow(
-    cursor, 
-    db_connection,
+    hass: HomeAssistant,
     table_name: str,
     columns: dict,
     where_command: str,
 ) -> str:
     try:
+        db_connection = hass.data[DOMAIN]["db_connection"]
+        cursor = db_connection.cursor()
         # Join column assignments with a comma and space
         col_assignments = ", ".join(f"{column} = '{value}'" for column, value in columns.items())
         
@@ -27,13 +31,15 @@ def updateTableRow(
         return None
     
 def insertTableRow(
-    cursor, 
-    db_connection,
-    table_name: str,
-    columns: dict
-) -> str:
+        hass: HomeAssistant,
+        table_name: str,
+        columns: dict
+    ) -> str:
     """Inserts a row into the specified table and returns the primary key."""
+    
     try:
+        db_connection = hass.data[DOMAIN]["db_connection"]
+        cursor = db_connection.cursor()
         # Create a dynamic query for insertion
         column_names = ", ".join(columns.keys())
         placeholders = ", ".join("?" for _ in columns.values())
