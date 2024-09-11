@@ -120,11 +120,22 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         config_entry, COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM
     )
     communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")
-    
-    # Database connection
-    
-    
-
+    # TODO
+    # make rows
+    # make row locations
+    # make towers
+    # make tower locations
+    # make controlled environment{tent}
+    # make tent row
+    # make tent row location
+    # make plants
+    # make nutrients
+    # make base
+    # make nutrient manufacturers
+    # make purchased nutrient mix
+    # make suggested nutrient mix
+    # make nutrient mix (contains current)
+    # make reserviours
     sql_rsp = insertTableRow(
         hass = hass,
         table_name="cf_main",
