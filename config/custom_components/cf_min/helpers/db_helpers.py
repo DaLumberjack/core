@@ -1,5 +1,7 @@
+import logging
 from homeassistant.core import HomeAssistant
 DOMAIN = "cf_min"
+_LOGGER = logging.getLogger(__name__)
 
 """Module for helping Database Communifarm."""
 def updateTableRow(
@@ -49,12 +51,12 @@ def insertTableRow(
             f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})",
             tuple(columns.values())
         )
-        
+        sql_rsp = cursor.lastrowid
         # Commit the transaction
         db_connection.commit()
         
         # Return the primary key of the inserted row
-        return cursor.lastrowid
+        return sql_rsp
     
     except Exception as e:
         # _LOGGER.error(f"Failed to insert row into {table_name}: {e}")

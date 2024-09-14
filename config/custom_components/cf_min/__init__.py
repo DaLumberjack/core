@@ -121,21 +121,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     )
     communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")
     # TODO
-    # make rows
-    # make row locations
-    # make towers
-    # make tower locations
-    # make controlled environment{tent}
-    # make tent row
-    # make tent row location
-    # make plants
-    # make nutrients
-    # make base
-    # make nutrient manufacturers
-    # make purchased nutrient mix
-    # make suggested nutrient mix
-    # make nutrient mix (contains current)
-    # make reserviours
+    # make controlled environments
+        # make communifarm
+    
     sql_rsp = insertTableRow(
         hass = hass,
         table_name="cf_main",
@@ -149,7 +137,26 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         _LOGGER.info(f"Communifarm '{communifarm_name}' added with SQL PK: {sql_rsp}")
     else:
         _LOGGER.error(f"Failed to insert Communifarm '{communifarm_name}' into database.")
+    
+        # make tent
+            # make tent row
+                # make tent row location
+        # make reserviours
+    # make tower rows
+        # make tower row locations
+    # make towers
+        # make tower locations
+    # make plants
+    # make nutrients
+    # make base
+    # make nutrient manufacturers
+    # make purchased nutrient mix
+    # make suggested nutrient mix
+    # make nutrient mix (contains current)
+    # 
+    # 
     # Store the entry in hass.data for later use if needed
+
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = config_entry
 
     return True
