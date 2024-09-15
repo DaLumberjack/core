@@ -2,10 +2,10 @@
 
 from abc import ABC, abstractmethod
 
-from homeassistant.helpers.entity import Entity
+from .entity import CommunifarmEntity
 
 
-class CommunifarmStorage(Entity, ABC):
+class CommunifarmStorage(CommunifarmEntity, ABC):
     """Abstract base class for storage entities in the Communifarm."""
 
     def __init__(
@@ -19,27 +19,31 @@ class CommunifarmStorage(Entity, ABC):
         columns: int = 1,
         row: int = 1,
         column: int = 1,
-        manufacturer: list[str] = "personal",
+        containing: str = "nothing",
+        manufacturer: list[str] = ["personal"],
         in_use: bool = False,
         description: str = "custom",
         cost: float = 0.0,
         media: str = "na",
     ) -> None:
         """Initialize the storage entity."""
-        self._name = name
-        self._device_name = device_name
-        self._unique_id = unique_id
-        self._location = location
+        super().__init__(
+            name=name,
+            device_name=device_name,
+            unique_id=unique_id,
+            location=location,
+            media_type=media_type,
+            manufacturer=manufacturer,
+            in_use=in_use,
+            description=description,
+            state="operational",
+        )
+        self._media_type = media_type
         self._rows = rows
         self._columns = columns
         self._row = row
         self._column = column
-        self._media_type = media_type
-        self._manufacturer = manufacturer
-        self._in_use = in_use
-        self._description = description
-        self._state = "operational"
-        self.cells = [[False for _ in range(columns)] for _ in range(rows)] | []
+        self._cells = ([[False for _ in range(columns)] for _ in range(rows)] | [],)
 
     @property
     def extra_state_attributes(self):

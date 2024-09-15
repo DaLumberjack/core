@@ -34,6 +34,22 @@ class CommunifarmTent(CommunifarmStorage):
             tent_row=tent_row,
         )
 
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return {
+            "location": self._location,
+            "rows": self._rows,
+            "columns": self._columns,
+            "row": self._row,
+            "column": self._column,
+            "media_type": self._media_type,
+            "_in_use": self._in_use,
+            "_manufacturer": self._manufacturer,
+            "_description": self._description,
+            "cells": self.cells,
+        }
+
     async def async_update(self):
         """Update the state of the reservoir."""
         # Here you could aggregate the states of all sensors and pumps
