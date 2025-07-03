@@ -1,0 +1,4 @@
+Will integrate any existing sensor in Home Assistant.
+Will be able to set up new Communifarm registered devices into Home Assistant.
+Repurposes existing sensor data to Communifarm format and will be useful because of that.
+Order will show through the dashboards, certain 'static' views, other are customer dynamic tabs.
