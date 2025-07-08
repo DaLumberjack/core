@@ -55,13 +55,13 @@ class CommunifarmTray(Entity):
         """Return the state attributes of the reservoir."""
         return {
             "tent": self._tent.name,
-            "seeds": [seed.name for seed in self._seed],
+            # "seeds": [seed.name for seed in self._seed],
         }
 
     async def async_update(self):
         """Update the state of the reservoir."""
         # Here you could aggregate the states of all sensors and pumps
-        for reservoir in self._reservoirs:
-            await reservoir.async_update()
-        for pump in self._pumps:
-            await pump.async_update()
+        # for reservoir in self._reservoirs:
+        #     await reservoir.async_update()
+        # for pump in self._pumps:
+        #     await pump.async_update()

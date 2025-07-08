@@ -1,14 +1,18 @@
 """Tray for the communifarm."""
 
+from cf_min.helpers.db_helpers import insertTableRow
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 
-from .tray import CommunifarmTray
-from .tower import CommunifarmTower
-from ..helpers.db_helpers import updateTableRow, insertTableRow
-from homeassistant.core import HomeAssistant
-from homeassistant.components import tag
+from .tent import CommunifarmTent
+
+
 class CommunifarmLocation(Entity):
-    """Tray for germinating seeds."""
+    """Location attributed to Communifarm for germinating seeds.
+
+    This class represents a location in the Communifarm system, which can be a tent, tower, or tray. This can be empty or traverse space, that can be occupied by humans as they traverse their Entire Farm.
+    Eventually this and its child classes will be the backbone of efficiency in the Communifarm system, allowing for easy identification and management of different locations within the farm.
+    """
 
     def __init__(
         self,
@@ -19,10 +23,11 @@ class CommunifarmLocation(Entity):
         row_type,
         sql_cf_pk,
         location,
+        tent: CommunifarmTent | None,
         sql_tent_pk: str | None,
         sql_tower_pk: str | None,
         hass: HomeAssistant,
-        nfc_tag: tag
+        # nfc_tag: tag
     ) -> None:
         """Initialize the tray entity."""
         self._name = name
@@ -36,16 +41,17 @@ class CommunifarmLocation(Entity):
         self._sql_cf_pk = sql_cf_pk
         self._sql_tower_pk = sql_tower_pk
         sql_rsp = insertTableRow(
-            hass = hass,
+            hass=hass,
             table_name="tent_row",
             columns={
-                "name":"4",
-                "nfc_tag_id": nfc_tag.TAG_ID,
+                "name": name,
+                # "nfc_tag_id": nfc_tag.TAG_ID,
                 "tent_fk": sql_tent_pk,
                 "cf_fk": sql_cf_pk,
-            }
+            },
         )
         self._sql_pk = sql_rsp
+
     @property
     def name(self) -> str:
         """Name of the tray."""
@@ -60,7 +66,7 @@ class CommunifarmLocation(Entity):
     def state(self):
         """Return the current state."""
         return self._state
-    
+
     @property
     def sql_pk(self):
         """Return the pk in its db."""
@@ -70,8 +76,12 @@ class CommunifarmLocation(Entity):
     def extra_state_attributes(self):
         """Return the state attributes of the reservoir."""
         return {
-            "tent": self._tent.name,
-            "seeds": [seed.name for seed in self._seed],
+            "location": self._location,
+            "location_type": self._location_type,
+            "row_type": self._row_type,
+            "tent_pk": self._sql_tent_pk,
+            "cf_pk": self._sql_cf_pk,
+            "tower_pk": self._sql_tower_pk,
         }
 
     async def async_update(self):

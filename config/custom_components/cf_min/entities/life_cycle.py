@@ -2,7 +2,7 @@
 
 from homeassistant.components.sensor import SensorEntity
 
-from ..sensor import DemoSensor
+from ..sensor import DemoSensor  # noqa: TID252
 from .harvest import CommunifarmHarvest
 from .observation import CommunifarmObservation
 from .plant import CommunifarmPlant
@@ -38,7 +38,7 @@ class CommunifarmPlantLifeCycle(SensorEntity):
         self._state = "operational"
 
     @property
-    def name(self) -> any:
+    def name(self) -> str:
         """Name of the reservior."""
         return self._name
 

@@ -31,6 +31,7 @@ class CommunifarmCalendar(CalendarEntity):
         """Return the description of the next event."""
         if self._events:
             return self._events[0].get("description")
+        return None
 
     def add_event(self, title, start_time, end_time, description=""):
         """Add an event to the calendar."""

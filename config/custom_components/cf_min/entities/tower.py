@@ -1,9 +1,8 @@
 """Module for handling Tower entities in Communifarm."""
 
+from cf_min.helpers.db_helpers import insertTableRow
 from homeassistant.core import HomeAssistant
-
 from homeassistant.helpers.entity import Entity
-from ..helpers.db_helpers import updateTableRow, insertTableRow
 
 DOMAIN = "cf_min"
 
@@ -20,17 +19,12 @@ class CommunifarmTower(Entity):
         # Database connection
         # insert the created tower into a sql db for complex entity relationship
         sql_rsp = insertTableRow(
-            hass = hass,
-            table_name = "tower",
-            columns = {
-                "name": self._name,
-                "cf": cf_pk
-            }
+            hass=hass, table_name="tower", columns={"name": self._name, "cf": cf_pk}
         )
         self._sql_pk = sql_rsp
-    
+
     @property
-    def name(self) -> any:
+    def name(self) -> str:
         """Name of the reservior."""
         return self._name
 
@@ -43,6 +37,11 @@ class CommunifarmTower(Entity):
     def state(self):
         """Return the current state."""
         return self._state
+
+    @property
+    def sql_pk(self):
+        """Return the current state."""
+        return self._sql_pk
 
     @property
     def extra_state_attributes(self):

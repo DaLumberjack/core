@@ -10,7 +10,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_START, Platform, UnitOfSoundPressure
 import homeassistant.core as ha
-from homeassistant.core import Event, HomeAssistant, ServiceCall
+from homeassistant.core import Event, HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
 # from homeassistant.helpers.discovery import async_load_platform
@@ -19,7 +19,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .helpers.actions import handle_plant_plant
-from .helpers.db_helpers import updateTableRow, insertTableRow
+from .helpers.db_helpers import insertTableRow
 
 DOMAIN = "cf_min"
 
@@ -71,7 +71,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             },
         )
     )
-    hass.services.async_register(DOMAIN, "plant_plant", handle_plant_plant)
+    hass.services.async_register(
+        DOMAIN,
+        "plant_plant",
+        lambda call: handle_plant_plant(hass, call),
+    )
     # Set up input number
     tasks.append(
         setup.async_setup_component(
@@ -120,32 +124,35 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         config_entry, COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM
     )
     communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")
-    # TODO
     # make controlled environments
-        # make communifarm
-    
+    # make communifarm
+
     sql_rsp = insertTableRow(
-        hass = hass,
+        hass=hass,
         table_name="cf_main",
         columns={
-            "name":communifarm_name,
-        }
+            "name": communifarm_name,
+        },
     )
     if sql_rsp:
         # Set the primary key (SQL PK) as an attribute
         hass.data[DOMAIN]["sql_pk"] = sql_rsp
-        _LOGGER.info(f"Communifarm '{communifarm_name}' added with SQL PK: {sql_rsp}")
+        _LOGGER.info(
+            "Communifarm '%s' added with SQL PK: %s", communifarm_name, sql_rsp
+        )
     else:
-        _LOGGER.error(f"Failed to insert Communifarm '{communifarm_name}' into database.")
-    
+        _LOGGER.error(
+            "Failed to insert Communifarm '%s' into database", communifarm_name
+        )
+
         # make tent
-            # make tent row
-                # make tent row location
+        # make tent row
+        # make tent row location
         # make reserviours
     # make tower rows
-        # make tower row locations
+    # make tower row locations
     # make towers
-        # make tower locations
+    # make tower locations
     # make plants
     # make nutrients
     # make base
@@ -153,8 +160,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     # make purchased nutrient mix
     # make suggested nutrient mix
     # make nutrient mix (contains current)
-    # 
-    # 
+    #
+    #
     # Store the entry in hass.data for later use if needed
 
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = config_entry

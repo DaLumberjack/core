@@ -1,8 +1,8 @@
 """Doser for communifarm component."""
 
+from cf_min.devices import DoserDevice
 from homeassistant.helpers.entity import Entity
 
-from ..devices import DoserDevice
 from .reservoir import CommunifarmReservoir
 
 
@@ -28,7 +28,7 @@ class CommunifarmDoser(Entity):
         self._attr_device_info = doserDevice.device_info
 
     @property
-    def name(self) -> any:
+    def name(self) -> str:
         """Name of the reservior."""
         return self._name
 

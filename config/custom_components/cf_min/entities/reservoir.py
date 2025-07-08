@@ -15,7 +15,7 @@ class CommunifarmReservoir(Entity):
         self._state = "operational"
 
     @property
-    def name(self) -> any:
+    def name(self) -> str:
         """Name of the reservior."""
         return self._name
 

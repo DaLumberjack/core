@@ -29,21 +29,20 @@ class CommunifarmStorage(CommunifarmEntity, ABC):
         """Initialize the storage entity."""
         super().__init__(
             name=name,
+            short_name=name,  # Provide a value for short_name, adjust as needed
             device_name=device_name,
             unique_id=unique_id,
             location=location,
-            media_type=media_type,
             manufacturer=manufacturer,
             in_use=in_use,
             description=description,
-            state="operational",
         )
         self._media_type = media_type
         self._rows = rows
         self._columns = columns
         self._row = row
         self._column = column
-        self._cells = ([[False for _ in range(columns)] for _ in range(rows)] | [],)
+        self._cells = [[False for _ in range(columns)] for _ in range(rows)]
 
     @property
     def extra_state_attributes(self):
@@ -58,7 +57,7 @@ class CommunifarmStorage(CommunifarmEntity, ABC):
             "_in_use": self._in_use,
             "_manufacturer": self._manufacturer,
             "_description": self._description,
-            "cells": self.cells,
+            "cells": self._cells,
         }
 
     @property

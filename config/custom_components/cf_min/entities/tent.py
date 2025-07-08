@@ -1,5 +1,9 @@
 """Tray for the communifarm."""
 
+from helpers.db_helpers import getTableRow
+
+from homeassistant.core import HomeAssistant
+
 from .storage import CommunifarmStorage
 
 
@@ -14,7 +18,9 @@ class CommunifarmTent(CommunifarmStorage):
         tent,
         flood_trays,
         rows,
+        location,
         columns,
+        growing_state,
         media_type,
         tent_row,
         sql_pk,
@@ -25,13 +31,53 @@ class CommunifarmTent(CommunifarmStorage):
             name=name,
             device_name=device_name,
             unique_id=unique_id,
-            tent=tent,
-            state="operational",
-            flood_trays=flood_trays,
+            location=location,
+            media_type=media_type,
             rows=rows,
             columns=columns,
-            media_type=media_type,
-            tent_row=tent_row,
+            row=tent_row,
+            column=1,  # Default to 1 for tent, can be adjusted later
+            containing=tent,
+            manufacturer=["personal"],
+            in_use=False,
+            description="custom",
+        )
+        self._flood_trays = flood_trays
+        self._growing_state = growing_state
+        self._sql_pk = sql_pk
+        self._hass = hass
+
+    @classmethod
+    def from_pk(cls, pk: int, hass: HomeAssistant) -> "CommunifarmTent":
+        """Create a CommunifarmTent from a primary key."""
+        # Fetch the data from the database using the primary key
+        tbl_name = '"table_name": "tent"'
+        wr_cmd = '"where_command": "pk = {pk}"'
+        data = getTableRow(
+            hass=hass,
+            table_name=tbl_name,
+            where_command=wr_cmd.format(pk=pk),
+            where_id=str(pk),
+        )
+        if not data or "reason" in data:
+            raise ValueError(
+                f"Failed to fetch tent with pk {pk}: {data.get('reason', 'Unknown error')}"
+            )
+        # Ensure the data contains all required fields
+        return cls(
+            name=data["name"],
+            device_name=data["device_name"],
+            unique_id=data["unique_id"],
+            tent=data["tent_fk"],
+            flood_trays=data["flood_trays"],
+            rows=data["rows"],
+            location=data["location"],
+            columns=data["columns"],
+            growing_state=data["growing_state"],
+            media_type=data["media_type"],
+            tent_row=data["tent_row_fk"],
+            sql_pk=pk,
+            hass=hass,
         )
 
     @property
@@ -47,7 +93,7 @@ class CommunifarmTent(CommunifarmStorage):
             "_in_use": self._in_use,
             "_manufacturer": self._manufacturer,
             "_description": self._description,
-            "cells": self.cells,
+            "cells": self._cells,
         }
 
     async def async_update(self):

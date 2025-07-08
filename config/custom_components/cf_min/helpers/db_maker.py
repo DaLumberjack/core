@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 class CommunifarmDatabase:
     """Creates a class to maintain database entries for grow life cycles and observations."""
 
-    def __init__(self, hass: HomeAssistant | None) -> None:
+    def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the database to hose grow cycles."""
         self.hass = hass
         self.db_path = hass.config.path("home-assistant_v2.db")
@@ -115,7 +115,7 @@ class CommunifarmDatabase:
         self.cursor.execute(
             """INSERT INTO observations (grow_cycle_id, observation_date, details)
                                VALUES (?, ?, ?)""",
-            (grow_cycle_id, datetime.now(), details),
+            (grow_cycle_id, datetime.time, details),
         )
         self.conn.commit()
 

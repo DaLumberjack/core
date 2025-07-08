@@ -35,7 +35,7 @@ class CommunifarmPlant(Entity):
         self._special_considerations = special_considerations
 
     @property
-    def name(self) -> any:
+    def name(self) -> str:
         """Name of the reservior."""
         return self._name
 

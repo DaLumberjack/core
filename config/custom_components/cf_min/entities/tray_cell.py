@@ -15,9 +15,10 @@ class CommunifarmTrayCell(Entity):
         self._last_watered = None
         self._last_watered_with = None
         self._state = False
+        self._unique_id = f"{tray_name}_cell_{row}_{col}"
 
     @property
-    def name(self) -> any:
+    def name(self) -> str:
         """Name of the reservior."""
         return f"{self._tray_name} Row {self._row} Col {self._col}"
 

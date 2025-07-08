@@ -2,3 +2,11 @@ Will integrate any existing sensor in Home Assistant.
 Will be able to set up new Communifarm registered devices into Home Assistant.
 Repurposes existing sensor data to Communifarm format and will be useful because of that.
 Order will show through the dashboards, certain 'static' views, other are customer dynamic tabs.
+
+to get an Object-Relational Mapping (ORM):
+need to have graphviz on for png
+
+from root of package `pyreverse . -o png -p cf`
+or you can output a dot file for graphical representation in other programs like
+`pyreverse . -o dot -p cf`
+`dot -Tsvg classes_cf.dot -o classes_cf.svg`
