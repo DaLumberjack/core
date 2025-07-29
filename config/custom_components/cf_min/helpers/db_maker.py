@@ -1,7 +1,9 @@
 """SQLite Database table creator."""
 
 import datetime
-import sqlite3
+
+import aiosqlite
+import const
 
 from homeassistant.core import HomeAssistant
 
@@ -12,113 +14,164 @@ class CommunifarmDatabase:
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the database to hose grow cycles."""
         self.hass = hass
-        self.db_path = hass.config.path("home-assistant_v2.db")
-        self.conn = sqlite3.connect(self.db_path)
-        self.cursor = self.conn.cursor()
+        self.db_path = hass.config.path(const.DB_PATH)
+        self.conn: aiosqlite.Connection | None = None
 
-    def setup_tables(self):
+    async def async_init(self) -> None:
+        """Initialize the database with async."""
+        self.conn = await aiosqlite.connect(self.db_path)
+        await self.async_setup_tables_from_const()
+
+    async def async_setup_tables_from_const(self) -> None:
         """Create tables for storing Communifarm data if they don't exist."""
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_grow_cycle (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                name TEXT NOT NULL,
-                                plant ENUM(Cilantro, Arugula, Lettuce, Spinach, Basil),
-                                tray TEXT,
-                                tray_cell TEXT,
-                                seed_ha_uid TEXT,
-                                tower_ha_uid TEXT,
-                                start_date DATETIME,
-                                end_date DATETIME,
-                                status TEXT
-                              )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_observation (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                grow_cycle_id INTEGER,
-                                observation_stage ENUM(Planting, Imbition, Germination, Emergence, Cotyledon, True Leaf, Transplant, Vegetative, Flower, Fruit, Ripen, Harvest, Storage, Sale, Transport, Misc),
-                                observation_location ENUM(Seed, Medium, Environment, Stem, Leaf, Root),
-                                observation_date DATETIME,
-                                room_odor_index INTEGER,
-                                tent_odor_index INTEGER,
-                                exterior_odor_index INTEGER,
-                                reservior_odor_index INTEGER,
-                                room_odor_text TEXT,
-                                tent_odor_text TEXT,
-                                exterior_odor_text TEXT,
-                                reservior_odor_text TEXT,
-                                details TEXT,
-                                FOREIGN KEY (grow_cycle_id) REFERENCES cf_grow_cycle(id)
-                              )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_quality_index (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                observation_id INTEGER,
-                                area ENUM(root, stem, leaf, medium, env)
-                                location ENUM(base, tip, body, vein)
-                                age ENUM(new, old)
-                                quality_type TEXT,
-                                necrosis_index INTEGER,
-                                necrosis_text TEXT,
-                                chlorosis_index INTEGER,
-                                chlorosis_text TEXT,
-                                color_index INTEGER,
-                                color_text TEXT,
-                                shape_index INTEGER,
-                                shape_text TEXT,
-                                FOREIGN KEY (observation_id) REFERENCES cf_observation(id)
-                                )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_odor_index (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                observation_id INTEGER,
-                                location ENUM(interior, exterior)
-                                area ENUM(reservior, environment, germination, tower, root, leaves, tent)
-                                reservior_type ENUM(main, ro, mixing)
-                                odor_index INTEGER,
-                                odor_text TEXT,
-                                FOREIGN KEY (observation_id) REFERENCES cf_observation(id)
-                                )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_harvest (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                grow_cycle_id INTEGER,
-                                harvest_date DATETIME,
-                                weight FLOAT(2),
-                                unit TEXT,
-                                details TEXT,
-                                FOREIGN KEY (grow_cycle_id) REFERENCES cf_grow_cycles(id)
-                              )""")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS cf_sale (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                grow_cycle_id INTEGER,
-                                harvest_id INTEGER,
-                                recipient TEXT,
-                                charged FLOAT,
-                                tax FLOAT,
-                                discounted BOOLEAN,
-                                discount_amount FLOAT,
-                                discount_percent FLOAT,
-                                sale_date DATETIME,
-                                details TEXT,
-                                FOREIGN KEY (grow_cycle_id) REFERENCES cf_grow_cycle(id)
-                                FOREIGN KEY (harvest_id) REFERENCES cf_harvest(id)
-                              )""")
-        self.conn.commit()
+        async with self.conn.cursor() as cursor:
+            for db in const.DB_CREATOR_JSON:
+                if const.DB_CREATOR_JSON[db]["create"]:
+                    await cursor.execute(const.DB_CREATOR_JSON[db]["command"])
+        await self.conn.commit()
 
-    def insert_grow_cycle(self, name, start_date):
+    async def async_close(self) -> None:
+        """Close the database connection."""
+        if self.conn:
+            await self.conn.close()
+
+    async def updateTableRow(
+        self,
+        hass: HomeAssistant,
+        table_name: str,
+        columns: dict,
+        where_command: str,
+    ) -> str:
+        """For updating a row in any table. Must use the lookup command dictionary."""
+        # where_dict = {
+        #     "table_name": table_name,
+        #     "columns": columns,
+        #     "where_command": where_command,
+        # }
+        try:
+            db_connection = hass.data[const.DOMAIN]["db_connection"]
+            cursor = db_connection.cursor()
+            # Join column assignments with a comma and space, use parameter placeholders
+            col_assignments = ", ".join(f"{column} = ?" for column in columns)
+
+            # Prepare the SQL statement with parameter placeholders for WHERE clause
+            sql = f"UPDATE {table_name} SET {col_assignments} WHERE {where_command};"  # noqa: S608
+
+            # Note: For full safety, the where_command should also use parameters.
+            # If where_command contains user input, refactor to accept a dict of where parameters and use placeholders.
+
+            cursor.execute(
+                sql,
+                tuple(columns.values()),
+            )
+
+            # Commit the transaction
+            await db_connection.commit()
+
+        except db_connection.DatabaseError:
+            # _LOGGER.error(f"Failed to insert row into {table_name}: {e}")
+            return "None"
+        else:
+            return cursor.lastrowid
+
+    async def getTableRow(
+        self, hass: HomeAssistant, table_name: str, where_command: str, where_id: str
+    ) -> dict:
+        """Fetches a row from the specified table based on the where command."""
+        # Keep a bad return for when we fail to get the row
+        bad_return = {"reason": "Initialized empty dictionary"}
+        whr_cmd = {
+            "table_name": table_name,
+            "where_command": where_command,
+            "where_id": where_id,
+        }
+        try:
+            db_connection = hass.data[const.DOMAIN]["db_connection"]
+            cursor = db_connection.cursor()
+            # whr_srt = str(where_command).strip()
+            # Execute the query to fetch the row
+            query = f"SELECT * FROM {whr_cmd['table_name']} WHERE {whr_cmd['where_command']};"  # noqa: S608
+            cursor.execute(query, (where_id,))
+            row = cursor.fetchone()
+
+            if row is None:
+                bad_return["reason"] = f"Failed to row from {table_name}"
+                bad_return["command"] = f"{where_command}"
+                return bad_return
+
+            # Get column names from the cursor description
+            column_names = [description[0] for description in cursor.description]
+
+            # Create a dictionary with column names as keys and row values as values
+            result = dict(zip(column_names, row, strict=False))
+
+        except db_connection.DatabaseError as e:
+            # _LOGGER.error(f"Failed to fetch row from {table_name}: {e}")
+            bad_return["reason"] = f"Failed to fetch row from {table_name}: {e}"
+            return bad_return
+        else:
+            # Return the primary key of the inserted row
+            return result
+
+    async def insertTableRow(
+        self, hass: HomeAssistant, table_name: str, columns: dict
+    ) -> str:
+        """Inserts a row into the specified table and returns the primary key."""
+
+        try:
+            db_connection = hass.data[const.DOMAIN]["db_connection"]
+            cursor = db_connection.cursor()
+            # Validate table and column names to prevent SQL injection
+            allowed_tables = []
+            for i in const.DB_CREATOR_JSON:
+                allowed_tables.append[i]
+            if table_name not in allowed_tables:
+                raise ValueError(f"Invalid table name: {table_name}")
+
+            allowed_columns = {
+                "col1",
+                "col2",
+                "col3",
+            }
+            if not set(columns.keys()).issubset(allowed_columns):
+                raise ValueError(
+                    f"Invalid column(s): {set(columns.keys()) - allowed_columns}"
+                )
+
+            column_names = ", ".join(columns.keys())
+            placeholders = ", ".join("?" for _ in columns.values())
+
+            # Insert the row using parameterized query for values only
+            sql = f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})"  # noqa: S608
+            cursor.execute(
+                sql,
+                tuple(columns.values()),
+            )
+            sql_rsp = cursor.lastrowid
+            # Commit the transaction
+            db_connection.commit()
+        except db_connection.DatabaseError:
+            # _LOGGER.error(f"Failed to insert row into {table_name}: {e}")
+            return "None"
+        else:
+            # Return the primary key of the inserted row
+            return sql_rsp
+
+    async def insert_grow_cycle(self, name, start_date):
         """Insert a new grow cycle into the database."""
         self.cursor.execute(
             """INSERT INTO grow_cycles (name, start_date, status)
-                               VALUES (?, ?, ?)""",
+                                VALUES (?, ?, ?)""",
             (name, start_date, "ongoing"),
         )
         self.conn.commit()
         return self.cursor.lastrowid
 
-    def insert_observation(self, grow_cycle_id, details):
+    async def insert_observation(self, grow_cycle_id, details):
         """Insert a new observation linked to a grow cycle."""
         self.cursor.execute(
             """INSERT INTO observations (grow_cycle_id, observation_date, details)
-                               VALUES (?, ?, ?)""",
+                                VALUES (?, ?, ?)""",
             (grow_cycle_id, datetime.time, details),
         )
         self.conn.commit()
-
-    def close(self):
-        """Close the database connection."""
-        self.conn.close()

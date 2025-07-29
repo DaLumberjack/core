@@ -6,5 +6,6 @@
   "dependencies": [],
   "codeowners": ["someone"],
   "quality_scale": "internal",
-  "config_flow": true
+  "config_flow": true,
+  "requirements": ["SQLAlchemy>=1.4.45,<2.0", "alembic>=1.10"]
 }

@@ -19,7 +19,6 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .helpers.actions import handle_plant_plant
-from .helpers.db_helpers import insertTableRow
 
 DOMAIN = "cf_min"
 
@@ -123,32 +122,32 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     await hass.config_entries.async_forward_entry_setups(
         config_entry, COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM
     )
-    communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")
+    communifarm_name = config_entry.data.get("communifarm_name", "Unnamed Communifarm")  # noqa: F841
     # make controlled environments
     # make communifarm
 
-    sql_rsp = insertTableRow(
-        hass=hass,
-        table_name="cf_main",
-        columns={
-            "name": communifarm_name,
-        },
-    )
-    if sql_rsp:
-        # Set the primary key (SQL PK) as an attribute
-        hass.data[DOMAIN]["sql_pk"] = sql_rsp
-        _LOGGER.info(
-            "Communifarm '%s' added with SQL PK: %s", communifarm_name, sql_rsp
-        )
-    else:
-        _LOGGER.error(
-            "Failed to insert Communifarm '%s' into database", communifarm_name
-        )
+    # sql_rsp = insertTableRow(
+    #     hass=hass,
+    #     table_name="cf_main",
+    #     columns={
+    #         "name": communifarm_name,
+    #     },
+    # )
+    # if sql_rsp:
+    #     # Set the primary key (SQL PK) as an attribute
+    #     hass.data[DOMAIN]["sql_pk"] = sql_rsp
+    #     _LOGGER.info(
+    #         "Communifarm '%s' added with SQL PK: %s", communifarm_name, sql_rsp
+    #     )
+    # else:
+    #     _LOGGER.error(
+    #         "Failed to insert Communifarm '%s' into database", communifarm_name
+    #     )
 
-        # make tent
-        # make tent row
-        # make tent row location
-        # make reserviours
+    # make tent
+    # make tent row
+    # make tent row location
+    # make reserviours
     # make tower rows
     # make tower row locations
     # make towers
